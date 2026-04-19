@@ -4,14 +4,18 @@ import { BrowserClip } from "@donkeyclip/motorcortex";
  * SvgClip provides a blank SVG canvas where elements can be added/removed
  * dynamically via addCustomEntity / removeCustomEntity.
  *
+ * CSSEffect from MC core works on custom entities out of the box — entities
+ * expose `html_element` pointing to the DOM node, which CSSEffect resolves
+ * automatically.
+ *
  * Attrs:
  *   viewBox    {string}  SVG viewBox (default "0 0 1000 1000")
  *   background {string}  Background color (default "transparent")
  *
  * addCustomEntity definition:
- *   svg        {string}  SVG markup to inject (e.g. '<circle cx="50" cy="50" r="40" fill="red"/>')
- *   x          {number}  X position (translate). Default 0.
- *   y          {number}  Y position (translate). Default 0.
+ *   svg        {string}  SVG markup to inject
+ *   x          {number}  X translate. Default 0.
+ *   y          {number}  Y translate. Default 0.
  *   scale      {number}  Uniform scale. Default 1.
  */
 export default class SvgClip extends BrowserClip {
@@ -32,7 +36,6 @@ export default class SvgClip extends BrowserClip {
     container.style.width = `${offsetWidth}px`;
     container.style.height = `${offsetHeight}px`;
 
-    this._entityMap = {};
     this._svg = container.querySelector("svg");
 
     // ── MC context patches ────────────────────────────────────────────────
@@ -56,13 +59,6 @@ export default class SvgClip extends BrowserClip {
     this.contextLoaded();
   }
 
-  // ── addCustomEntity / removeCustomEntity ──────────────────────────────
-
-  /**
-   * Called by MC when addCustomEntity is invoked.
-   * Creates an SVG <g> wrapper, injects the provided SVG markup into it,
-   * positions it via transform, and appends to the root <svg>.
-   */
   renderCustomEntity(definition) {
     if (!definition || typeof definition !== "object") return null;
     if (definition._isSvgEntity) return definition;
@@ -70,7 +66,6 @@ export default class SvgClip extends BrowserClip {
     if (definition.svg) {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-      // Position via transform
       const x = definition.x || 0;
       const y = definition.y || 0;
       const scale = definition.scale || 1;
@@ -81,7 +76,6 @@ export default class SvgClip extends BrowserClip {
         );
       }
 
-      // Inject SVG content
       const temp = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "svg",
@@ -93,14 +87,10 @@ export default class SvgClip extends BrowserClip {
 
       this._svg.appendChild(g);
 
-      const entity = {
+      return {
         _isSvgEntity: true,
-        element: g,
-        _originalOpacity: "1",
-        _originalFill: "",
-        _glow: 0,
+        html_element: g,
       };
-      return entity;
     }
 
     return null;
@@ -108,16 +98,16 @@ export default class SvgClip extends BrowserClip {
 
   showElement(element) {
     if (!element || !element._isSvgEntity) return;
-    const el = element.element;
+    const el = element.html_element;
     if (el) {
       el.style.display = "";
-      el.style.opacity = element._originalOpacity ?? "1";
+      el.style.opacity = "1";
     }
   }
 
   hideElement(element) {
     if (!element || !element._isSvgEntity) return;
-    const el = element.element;
+    const el = element.html_element;
     if (el) {
       el.style.display = "none";
       el.style.opacity = "0";

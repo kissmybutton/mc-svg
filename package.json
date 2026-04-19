@@ -55,7 +55,7 @@
     "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@babel/preset-env": "^7.29.2",
     "@babel/preset-react": "^7.27.1",
-    "@donkeyclip/motorcortex": "file:/Users/andreastrantidis/Projects/donkeyclip/packages/motorcortex",
+    "@donkeyclip/motorcortex": ">=9.17.0",
     "@donkeyclip/motorcortex-player": "2.15.18",
     "@rollup/plugin-babel": "^7.0.0",
     "@rollup/plugin-commonjs": "^29.0.2",

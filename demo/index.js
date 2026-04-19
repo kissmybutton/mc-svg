@@ -1,4 +1,4 @@
-import { loadPlugin } from "@donkeyclip/motorcortex";
+import { CSSEffect, loadPlugin } from "@donkeyclip/motorcortex";
 import Player from "@donkeyclip/motorcortex-player";
 import SvgPluginDef from "../dist/bundle.esm.js";
 
@@ -13,7 +13,9 @@ const clip = new McSvg.Clip(
   },
 );
 
-// Add a house at 1s
+// ── Add entities ────────────────────────────────────────────────────────────
+
+// House at 500ms
 clip.addCustomEntity(
   {
     svg: `
@@ -27,11 +29,11 @@ clip.addCustomEntity(
     y: 150,
   },
   "house",
-  ["buildings"],
-  1000,
+  [],
+  500,
 );
 
-// Add a tree at 2.5s
+// Tree at 2s
 clip.addCustomEntity(
   {
     svg: `
@@ -44,11 +46,11 @@ clip.addCustomEntity(
     y: 180,
   },
   "tree",
-  ["nature"],
-  2500,
+  [],
+  2000,
 );
 
-// Add a sun at 4s
+// Sun at 3.5s
 clip.addCustomEntity(
   {
     svg: `
@@ -62,40 +64,46 @@ clip.addCustomEntity(
     y: 70,
   },
   "sun",
-  ["nature"],
-  4000,
+  [],
+  3500,
 );
 
-// Glow the house at 5s
+// ── CSSEffect from MC core — targeting custom entities via !# selector ──────
+
+// Fade the house to 30% opacity at 4.5s
 clip.addIncident(
-  new McSvg.Attr(
-    { animatedAttrs: { glow: 1 } },
-    { selector: "!#house", duration: 300 },
+  new CSSEffect(
+    { animatedAttrs: { opacity: 0.3 } },
+    { selector: "!#house", duration: 1000 },
   ),
-  5000,
+  4500,
 );
+
+// Fade it back at 5.5s
 clip.addIncident(
-  new McSvg.Attr(
-    { animatedAttrs: { glow: 0 } },
+  new CSSEffect(
+    { animatedAttrs: { opacity: 1 } },
     { selector: "!#house", duration: 500 },
   ),
   5500,
 );
 
-// Glow the tree at 6s
+// Scale the tree up at 5s
 clip.addIncident(
-  new McSvg.Attr(
-    { animatedAttrs: { glow: 1 } },
-    { selector: "!#tree", duration: 300 },
+  new CSSEffect(
+    { animatedAttrs: { transform: { scale: 1.5 } } },
+    { selector: "!#tree", duration: 1000 },
+  ),
+  5000,
+);
+
+// Rotate the sun at 6s
+clip.addIncident(
+  new CSSEffect(
+    { animatedAttrs: { transform: { rotate: "360deg" } } },
+    { selector: "!#sun", duration: 2000 },
   ),
   6000,
-);
-clip.addIncident(
-  new McSvg.Attr(
-    { animatedAttrs: { glow: 0 } },
-    { selector: "!#tree", duration: 500 },
-  ),
-  6500,
 );
 
 new Player({ clip, timeFormat: "ms" });
