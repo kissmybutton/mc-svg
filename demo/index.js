@@ -13,8 +13,6 @@ const clip = new McSvg.Clip(
   },
 );
 
-// ── Add entities ────────────────────────────────────────────────────────────
-
 // House at 500ms
 clip.addCustomEntity(
   {
@@ -33,7 +31,7 @@ clip.addCustomEntity(
   500,
 );
 
-// Tree at 2s
+// Tree at 1.5s
 clip.addCustomEntity(
   {
     svg: `
@@ -47,10 +45,10 @@ clip.addCustomEntity(
   },
   "tree",
   [],
-  2000,
+  1500,
 );
 
-// Sun at 3.5s
+// Sun at 2.5s
 clip.addCustomEntity(
   {
     svg: `
@@ -65,45 +63,43 @@ clip.addCustomEntity(
   },
   "sun",
   [],
-  3500,
+  2500,
 );
 
-// ── CSSEffect from MC core — targeting custom entities via !# selector ──────
+// ── CSSEffect animations (from MC core, targeting custom entities) ──────────
 
-// Fade the house to 30% opacity at 4.5s
+// Fade house
 clip.addIncident(
   new CSSEffect(
     { animatedAttrs: { opacity: 0.3 } },
     { selector: "!#house", duration: 1000 },
   ),
-  4500,
+  3500,
 );
-
-// Fade it back at 5.5s
 clip.addIncident(
   new CSSEffect(
     { animatedAttrs: { opacity: 1 } },
     { selector: "!#house", duration: 500 },
   ),
-  5500,
+  4500,
 );
 
-// Scale the tree up at 5s
+// Scale tree
 clip.addIncident(
   new CSSEffect(
-    { animatedAttrs: { transform: { scale: 1.5 } } },
-    { selector: "!#tree", duration: 1000 },
+    { animatedAttrs: { transform: { scale: 1.3 } } },
+    { selector: "!#tree", duration: 800 },
   ),
-  5000,
+  3800,
 );
 
-// Rotate the sun at 6s
+// Rotate sun
 clip.addIncident(
   new CSSEffect(
     { animatedAttrs: { transform: { rotate: "360deg" } } },
-    { selector: "!#sun", duration: 2000 },
+    { selector: "!#sun", duration: 3000 },
   ),
-  6000,
+  2500,
 );
 
 new Player({ clip, timeFormat: "ms" });

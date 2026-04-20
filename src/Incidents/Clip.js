@@ -42,8 +42,10 @@ export default class SvgClip extends BrowserClip {
 
     const _origSetMCID = this.ownContext.setMCID;
     this.ownContext.setMCID = (el, mcid) => {
-      if (el && typeof el.nodeType === "number") {
-        _origSetMCID(el, mcid);
+      // Unwrap custom entity to DOM node if available
+      const target = el?.html_element ?? el;
+      if (target && typeof target.nodeType === "number") {
+        _origSetMCID(target, mcid);
       }
     };
 
@@ -64,17 +66,22 @@ export default class SvgClip extends BrowserClip {
     if (definition._isSvgEntity) return definition;
 
     if (definition.svg) {
-      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      // Outer <g> for SVG positioning (transform attribute)
+      const outer = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
       const x = definition.x || 0;
       const y = definition.y || 0;
       const scale = definition.scale || 1;
       if (x !== 0 || y !== 0 || scale !== 1) {
-        g.setAttribute(
+        outer.setAttribute(
           "transform",
           `translate(${x}, ${y})${scale !== 1 ? ` scale(${scale})` : ""}`,
         );
       }
+
+      // Inner <g> for CSS animations (transform style) — avoids conflict
+      // with SVG transform attribute on the outer <g>
+      const inner = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
       const temp = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -82,14 +89,27 @@ export default class SvgClip extends BrowserClip {
       );
       temp.innerHTML = definition.svg;
       while (temp.firstChild) {
-        g.appendChild(temp.firstChild);
+        inner.appendChild(temp.firstChild);
       }
 
-      this._svg.appendChild(g);
+      // Apply initial CSS styles to the inner <g> (e.g. scaleY(0) for grow-in)
+      if (definition.initialStyle) {
+        Object.assign(inner.style, definition.initialStyle);
+      }
 
+      // Set a unique data-motorcortex2-id so CSSEffect can track this element.
+      // MC normally sets this for parsed DOM elements but not for custom entities.
+      const mcid = `svg_ent_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      inner.setAttribute("data-motorcortex2-id", mcid);
+
+      outer.appendChild(inner);
+      this._svg.appendChild(outer);
+
+      // html_element points to the INNER <g> — CSSEffect animates this one
       return {
         _isSvgEntity: true,
-        html_element: g,
+        html_element: inner,
+        _outerG: outer,
       };
     }
 
@@ -98,7 +118,7 @@ export default class SvgClip extends BrowserClip {
 
   showElement(element) {
     if (!element || !element._isSvgEntity) return;
-    const el = element.html_element;
+    const el = element._outerG || element.html_element;
     if (el) {
       el.style.display = "";
       el.style.opacity = "1";
@@ -107,7 +127,7 @@ export default class SvgClip extends BrowserClip {
 
   hideElement(element) {
     if (!element || !element._isSvgEntity) return;
-    const el = element.html_element;
+    const el = element._outerG || element.html_element;
     if (el) {
       el.style.display = "none";
       el.style.opacity = "0";
