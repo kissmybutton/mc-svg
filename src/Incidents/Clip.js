@@ -2,7 +2,7 @@ import { BrowserClip } from "@donkeyclip/motorcortex";
 
 /**
  * SvgClip provides a blank SVG canvas where elements can be added/removed
- * dynamically via addCustomEntity / removeCustomEntity.
+ * dynamically via addCustomEntity.
  *
  * CSSEffect from MC core works on custom entities out of the box — entities
  * expose `html_element` pointing to the DOM node, which CSSEffect resolves
@@ -54,9 +54,6 @@ export default class SvgClip extends BrowserClip {
       const result = _origGetElements(selector);
       return Array.isArray(result) ? result.filter((el) => el != null) : result;
     };
-
-    this.ownContext.showElement = (el) => this.showElement(el);
-    this.ownContext.hideElement = (el) => this.hideElement(el);
 
     this.contextLoaded();
   }
@@ -116,20 +113,10 @@ export default class SvgClip extends BrowserClip {
     return null;
   }
 
-  showElement(element) {
+  hideEntity(element) {
     if (!element || !element._isSvgEntity) return;
     const el = element._outerG || element.html_element;
     if (el) {
-      el.style.display = "";
-      el.style.opacity = "1";
-    }
-  }
-
-  hideElement(element) {
-    if (!element || !element._isSvgEntity) return;
-    const el = element._outerG || element.html_element;
-    if (el) {
-      el.style.display = "none";
       el.style.opacity = "0";
     }
   }
