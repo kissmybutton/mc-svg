@@ -13,7 +13,7 @@ const clip = new McSvg.Clip(
   },
 );
 
-// House at 500ms
+// House — hidden, revealed by CSSEffect
 clip.addCustomEntity(
   {
     svg: `
@@ -28,10 +28,10 @@ clip.addCustomEntity(
   },
   "house",
   [],
-  500,
+  false,
 );
 
-// Tree at 1.5s
+// Tree — hidden
 clip.addCustomEntity(
   {
     svg: `
@@ -45,10 +45,10 @@ clip.addCustomEntity(
   },
   "tree",
   [],
-  1500,
+  false,
 );
 
-// Sun at 2.5s
+// Sun — hidden
 clip.addCustomEntity(
   {
     svg: `
@@ -63,11 +63,33 @@ clip.addCustomEntity(
   },
   "sun",
   [],
+  false,
+);
+
+// ── Reveal animations ───────────────────────────────────────────────────────
+clip.addIncident(
+  new CSSEffect(
+    { animatedAttrs: { opacity: 1 } },
+    { selector: "!#house", duration: 500 },
+  ),
+  500,
+);
+clip.addIncident(
+  new CSSEffect(
+    { animatedAttrs: { opacity: 1 } },
+    { selector: "!#tree", duration: 500 },
+  ),
+  1500,
+);
+clip.addIncident(
+  new CSSEffect(
+    { animatedAttrs: { opacity: 1 } },
+    { selector: "!#sun", duration: 500 },
+  ),
   2500,
 );
 
-// ── CSSEffect animations (from MC core, targeting custom entities) ──────────
-
+// ── CSSEffect animations ────────────────────────────────────────────────────
 // Fade house
 clip.addIncident(
   new CSSEffect(
